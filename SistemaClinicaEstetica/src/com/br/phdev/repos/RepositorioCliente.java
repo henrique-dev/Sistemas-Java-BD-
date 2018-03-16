@@ -43,11 +43,11 @@ public class RepositorioCliente {
         
         Connection con = null;
         
-        Conexao conexao = new Conexao();
+        Conexao conexaobd = new Conexao();
         ArrayList<Cliente> clientes = new ArrayList<>();
         
         try {
-            con = conexao.conectar();
+            con = conexaobd.conectar();
             
             String sql = "SELECT * FROM CLIENTE";
             PreparedStatement prepared = con.prepareStatement(sql);
@@ -64,9 +64,50 @@ public class RepositorioCliente {
         } catch (SQLException e) {
             Log.e(this, e.getMessage());
         } finally {
-            conexao.desconectar(con);
+            conexaobd.desconectar(con);
             return clientes;
         }        
+    }
+    
+    public void inserir(Cliente cliente) throws SQLException{
+        Conexao conexaobd = new Conexao();
+        Connection con = conexaobd.conectar();
+        
+        String sql = "INSERT INTO CLIENTE(CODIGO, NOME, ENDERECO, TELEFONE) VALUES (?,?,?,?)";
+        PreparedStatement prepared =  con.prepareStatement(sql);
+        prepared.setInt(0, cliente.getCodigo());
+        prepared.setString(1, cliente.getNome());
+        prepared.setString(2, cliente.getEndereco());
+        prepared.setString(3, cliente.getTelefone());        
+        prepared.execute();
+        
+        conexaobd.desconectar(con);
+    }
+    
+    public void remover(int codigoCliente) throws SQLException {
+        Conexao conexaobd = new Conexao();        
+        Connection con = conexaobd.conectar();
+        
+        String sql = "DELETE FROM CLIENTE WHERE CODIGO=" + codigoCliente;
+        PreparedStatement prepared = con.prepareStatement(sql);
+        prepared.execute();
+        
+        conexaobd.desconectar(con);
+    }
+    
+    public void atualizar(Cliente cliente) throws SQLException {
+        Conexao conexaobd = new Conexao();
+        Connection con = conexaobd.conectar();
+        
+        String sql = "UPDATE CLIENTE SET NOME=?, ENDERECO=?, TELEFONE=? WHERE CODIGO=?";
+        PreparedStatement prepared = con.prepareStatement(sql);
+        prepared.setString(0, cliente.getNome());
+        prepared.setString(1, cliente.getEndereco());
+        prepared.setString(2, cliente.getTelefone());
+        prepared.setInt(3, cliente.getCodigo());
+        prepared.execute();
+        
+        conexaobd.desconectar(con);
     }
     
 }
