@@ -27,96 +27,126 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import javax.security.auth.login.LoginException;
 
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar
  */
 public class RepositorioFuncionario {
-    
+
     private static RepositorioFuncionario instancia;
-    
+
     public static RepositorioFuncionario getInstancia() {
-        if (instancia == null)
+        if (instancia == null) {
             instancia = new RepositorioFuncionario();
+        }
         return instancia;
     }
-    
-    public ArrayList<Funcionario> listar() throws SQLException{
-        
+
+    public Funcionario login(String usuario, String senha) throws SQLException, LoginException {
+
         Connection con = null;
-        
+
+        Conexao conexaobd = new Conexao();
+        ResultSet resultado = null;
+        Funcionario funcionario = null;
+
+        con = conexaobd.conectar();                
+
+        String sql = "SELECT * FROM FUNCIONARIO WHERE LOGIN=" + usuario;
+        PreparedStatement prepared = con.prepareStatement(sql);
+        resultado = prepared.executeQuery();
+
+        if (resultado.next()) {
+            if (senha.equals(resultado.getString("SENHA"))) {
+                if (resultado.getString("CARGO").equals("GERENTE")) {
+                    funcionario = new Gerente(resultado.getString("NOME"), resultado.getString("LOGIN"), "");
+                } else {
+                    funcionario = new Atendente(resultado.getString("NOME"), resultado.getString("LOGIN"), "");
+                }
+            }
+            else
+                throw new LoginException();
+        }
+
+        conexaobd.desconectar(con);
+
+        return funcionario;
+    }
+
+    public ArrayList<Funcionario> listar() throws SQLException {
+
+        Connection con = null;
+
         Conexao conexaobd = new Conexao();
         ArrayList<Funcionario> funcionarios = new ArrayList<>();
-        
-        try {
-            con = conexaobd.conectar();
-            
-            String sql = "SELECT * FROM FUNCIONARIO";
-            PreparedStatement prepared = con.prepareStatement(sql);
-            ResultSet resultado = prepared.executeQuery();
-            
-            while (resultado.next()) {                                
-                if (resultado.getString("CARGO").equals("GERENTE")) {
-                    Gerente tmpGerente = new Gerente(
-                            resultado.getString("NOME"),
-                            resultado.getString("LOGIN"),
-                            resultado.getString("SENHA"));
-                    funcionarios.add(tmpGerente);
-                } else {
-                    Atendente tmpAtendente = new Atendente(
-                            resultado.getString("NOME"),
-                            resultado.getString("LOGIN"),
-                            resultado.getString("SENHA"));
-                    funcionarios.add(tmpAtendente);
-                }
-                                                
+
+        con = conexaobd.conectar();
+
+        String sql = "SELECT * FROM FUNCIONARIO";
+        PreparedStatement prepared = con.prepareStatement(sql);
+        ResultSet resultado = prepared.executeQuery();
+
+        while (resultado.next()) {
+            if (resultado.getString("CARGO").equals("GERENTE")) {
+                Gerente tmpGerente = new Gerente(
+                        resultado.getString("NOME"),
+                        resultado.getString("LOGIN"),
+                        resultado.getString("SENHA"));
+                funcionarios.add(tmpGerente);
+            } else {
+                Atendente tmpAtendente = new Atendente(
+                        resultado.getString("NOME"),
+                        resultado.getString("LOGIN"),
+                        resultado.getString("SENHA"));
+                funcionarios.add(tmpAtendente);
             }
-        } catch (SQLException e) {
-            Log.e(this, e.getMessage());
-        } finally {
-            conexaobd.desconectar(con);
-            return funcionarios;
-        }        
+
+        }
+
+        conexaobd.desconectar(con);
+        return funcionarios;
+
     }
-    
-    public void inserir(Funcionario funcionario) throws SQLException{
+
+    public void inserir(Funcionario funcionario) throws SQLException {
         Conexao conexaobd = new Conexao();
         Connection con = conexaobd.conectar();
-        
+
         String sql = "INSERT INTO FUNCIONARIO(NOME, LOGIN, SENHA) VALUES (?,?,?)";
-        PreparedStatement prepared =  con.prepareStatement(sql);        
+        PreparedStatement prepared = con.prepareStatement(sql);
         prepared.setString(0, funcionario.getNome());
         prepared.setString(1, funcionario.getLogin());
-        prepared.setString(2, funcionario.getSenha());        
+        prepared.setString(2, funcionario.getSenha());
         prepared.execute();
-        
+
         conexaobd.desconectar(con);
     }
-    
+
     public void remover(String login) throws SQLException {
-        Conexao conexaobd = new Conexao();        
+        Conexao conexaobd = new Conexao();
         Connection con = conexaobd.conectar();
-        
+
         String sql = "DELETE FROM FUNCIONARIO WHERE LOGIN=" + login;
         PreparedStatement prepared = con.prepareStatement(sql);
         prepared.execute();
-        
+
         conexaobd.desconectar(con);
     }
-    
+
     public void atualizar(Funcionario funcionario) throws SQLException {
         Conexao conexaobd = new Conexao();
         Connection con = conexaobd.conectar();
-        
+
         String sql = "UPDATE FUNCIONARIO SET NOME=?, SENHA=? WHERE LOGIN=?";
         PreparedStatement prepared = con.prepareStatement(sql);
         prepared.setString(0, funcionario.getNome());
-        prepared.setString(1, funcionario.getSenha());        
+        prepared.setString(1, funcionario.getSenha());
         prepared.setString(2, funcionario.getLogin());
         prepared.execute();
-        
+
         conexaobd.desconectar(con);
     }
-    
+
 }

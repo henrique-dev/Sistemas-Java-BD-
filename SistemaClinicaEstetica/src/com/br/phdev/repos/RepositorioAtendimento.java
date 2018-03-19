@@ -22,4 +22,12 @@ package com.br.phdev.repos;
  */
 public class RepositorioAtendimento {
     
+    private static RepositorioAtendimento instancia;
+    
+    public static RepositorioAtendimento getInstancia() {
+        if (instancia == null)
+            instancia = new RepositorioAtendimento();
+        return instancia;
+    }        
+    
 }

@@ -16,6 +16,9 @@
  */
 package com.br.phdev.log;
 
+import javax.security.auth.login.LoginException;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Paulo Henrique Gonçalves Bacelar
@@ -34,6 +37,11 @@ public class Log {
     
     public static void e(Object obj, String msg) {
         System.err.println(obj.getClass() + "/D: " + msg);
+    }        
+    
+    public static void e(Object obj, String msg, boolean exibirMensagemSomenteNoConsole) {        
+        if (!exibirMensagemSomenteNoConsole)
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), msg);
     }
     
 }

@@ -28,31 +28,24 @@ import java.sql.SQLException;
  * @author Paulo Henrique Gonçalves Bacelar
  */
 public class Conexao {
-    
-    public Connection conectar(){
-        
+
+    public Connection conectar() throws SQLException {
+
         Connection con = null;
-        String url = "jdbc:postgresql://localhost:5432/<nome-bd";
-        String usuario = "nome-usuario";
-        String senha = "senha-usuario";
-        
-        try {                                    
-            
-            con = DriverManager.getConnection(url, usuario, senha);                        
-            
-        } catch (SQLException e) {
-            Log.e(this, e.getMessage());
-        } finally {
-            return con;
-        }                
+        String url = "jdbc:postgresql://localhost:5432/Clinica";
+        String usuario = "admin";
+        String senha = "12345";
+
+        con = DriverManager.getConnection(url, usuario, senha);
+
+        return con;
+
     }
-    
-    public void desconectar(Connection con){
-        try {
-            con.close();
-        } catch (SQLException e) {
-            Log.e(this, e.getMessage());
-        }
+
+    public void desconectar(Connection con) throws SQLException {
+
+        con.close();
+
     }
-    
+
 }
